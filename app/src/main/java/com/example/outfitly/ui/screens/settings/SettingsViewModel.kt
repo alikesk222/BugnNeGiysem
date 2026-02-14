@@ -28,7 +28,8 @@ class SettingsViewModel @Inject constructor(
                     it.copy(
                         thermalProfile = prefs.thermalProfile,
                         notificationsEnabled = prefs.notificationsEnabled,
-                        isPremium = prefs.isPremium
+                        isPremium = prefs.isPremium,
+                        darkMode = prefs.darkMode
                     )
                 }
             }
@@ -46,10 +47,17 @@ class SettingsViewModel @Inject constructor(
             userPreferencesRepository.updateNotificationsEnabled(enabled)
         }
     }
+    
+    fun updateDarkMode(mode: String) {
+        viewModelScope.launch {
+            userPreferencesRepository.updateDarkMode(mode)
+        }
+    }
 }
 
 data class SettingsUiState(
     val thermalProfile: ThermalProfile = ThermalProfile.NORMAL,
     val notificationsEnabled: Boolean = true,
-    val isPremium: Boolean = false
+    val isPremium: Boolean = false,
+    val darkMode: String = "system"
 )

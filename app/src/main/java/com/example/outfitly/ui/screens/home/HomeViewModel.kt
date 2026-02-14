@@ -81,13 +81,13 @@ class HomeViewModel @Inject constructor(
                 _uiState.update { 
                     it.copy(
                         isLoading = false, 
-                        error = "Could not get location. Please try again or enter city manually."
+                        error = "Konum alınamadı. Lütfen tekrar deneyin veya şehir adı girin."
                     ) 
                 }
             }
         }.addOnFailureListener { e ->
             _uiState.update { 
-                it.copy(isLoading = false, error = e.message ?: "Failed to get location") 
+                it.copy(isLoading = false, error = e.message ?: "Konum alınamadı") 
             }
         }
     }

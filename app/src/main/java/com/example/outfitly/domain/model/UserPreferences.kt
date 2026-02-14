@@ -5,5 +5,6 @@ data class UserPreferences(
     val lastCity: String? = null,
     val isPremium: Boolean = false,
     val thermalProfile: ThermalProfile = ThermalProfile.NORMAL,
-    val notificationsEnabled: Boolean = true
+    val notificationsEnabled: Boolean = true,
+    val darkMode: String = "system"
 )

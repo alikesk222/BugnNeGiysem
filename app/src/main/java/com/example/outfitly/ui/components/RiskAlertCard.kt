@@ -1,8 +1,15 @@
 package com.example.outfitly.ui.components
 
-import androidx.compose.animation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.AcUnit
+import androidx.compose.material.icons.rounded.Air
+import androidx.compose.material.icons.rounded.LocalFireDepartment
+import androidx.compose.material.icons.rounded.Thermostat
+import androidx.compose.material.icons.rounded.TipsAndUpdates
+import androidx.compose.material.icons.rounded.Umbrella
+import androidx.compose.material.icons.rounded.Warning
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -25,7 +32,7 @@ fun RiskAlertCard(
         modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(
-            containerColor = Error.copy(alpha = 0.1f)
+            containerColor = MaterialTheme.colorScheme.errorContainer
         )
     ) {
         Column(
@@ -37,15 +44,17 @@ fun RiskAlertCard(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                Text(
-                    text = "⚠️",
-                    style = MaterialTheme.typography.titleMedium
+                Icon(
+                    Icons.Rounded.Warning,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.error,
+                    modifier = Modifier.size(20.dp)
                 )
                 Text(
                     text = "Dikkat!",
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
-                    color = Error
+                    color = MaterialTheme.colorScheme.error
                 )
             }
             
@@ -62,18 +71,20 @@ fun RiskAlertCard(
 @Composable
 private fun RiskAlertItem(alert: RiskAlert) {
     val severityColor = when (alert.severity) {
-        RiskSeverity.HIGH -> Error
+        RiskSeverity.HIGH -> MaterialTheme.colorScheme.error
         RiskSeverity.MEDIUM -> WarmOrange
         RiskSeverity.LOW -> SunnyYellow
     }
     
     val icon = when (alert.type) {
-        RiskType.TEMPERATURE_DROP -> "🌡️"
-        RiskType.HIGH_WIND -> "💨"
-        RiskType.RAIN_CHANCE -> "🌧️"
-        RiskType.EXTREME_COLD -> "❄️"
-        RiskType.EXTREME_HEAT -> "🔥"
+        RiskType.TEMPERATURE_DROP -> Icons.Rounded.Thermostat
+        RiskType.HIGH_WIND -> Icons.Rounded.Air
+        RiskType.RAIN_CHANCE -> Icons.Rounded.Umbrella
+        RiskType.EXTREME_COLD -> Icons.Rounded.AcUnit
+        RiskType.EXTREME_HEAT -> Icons.Rounded.LocalFireDepartment
     }
+    
+    val colors = LocalAppColors.current
     
     Surface(
         shape = RoundedCornerShape(12.dp),
@@ -85,9 +96,11 @@ private fun RiskAlertItem(alert: RiskAlert) {
                 .padding(12.dp),
             verticalAlignment = Alignment.Top
         ) {
-            Text(
-                text = icon,
-                style = MaterialTheme.typography.titleMedium
+            Icon(
+                icon,
+                contentDescription = null,
+                tint = severityColor,
+                modifier = Modifier.size(20.dp)
             )
             
             Spacer(modifier = Modifier.width(12.dp))
@@ -97,14 +110,23 @@ private fun RiskAlertItem(alert: RiskAlert) {
                     text = alert.message,
                     style = MaterialTheme.typography.bodyMedium,
                     fontWeight = FontWeight.Medium,
-                    color = OnSurface
+                    color = colors.onSurface
                 )
                 Spacer(modifier = Modifier.height(4.dp))
-                Text(
-                    text = "💡 ${alert.recommendation}",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = OnSurface.copy(alpha = 0.7f)
-                )
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        Icons.Rounded.TipsAndUpdates,
+                        contentDescription = null,
+                        tint = colors.subtext,
+                        modifier = Modifier.size(14.dp)
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(
+                        text = alert.recommendation,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = colors.subtext
+                    )
+                }
             }
         }
     }

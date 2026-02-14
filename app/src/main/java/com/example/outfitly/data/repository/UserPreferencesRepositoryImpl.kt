@@ -23,6 +23,7 @@ class UserPreferencesRepositoryImpl @Inject constructor(
         val IS_PREMIUM = booleanPreferencesKey(PreferencesKeys.IS_PREMIUM)
         val THERMAL_PROFILE = stringPreferencesKey("thermal_profile")
         val NOTIFICATIONS_ENABLED = booleanPreferencesKey("notifications_enabled")
+        val DARK_MODE = stringPreferencesKey("dark_mode")
     }
     
     override val userPreferences: Flow<UserPreferences> = dataStore.data.map { preferences ->
@@ -33,7 +34,8 @@ class UserPreferencesRepositoryImpl @Inject constructor(
             thermalProfile = preferences[Keys.THERMAL_PROFILE]?.let { 
                 ThermalProfile.valueOf(it) 
             } ?: ThermalProfile.NORMAL,
-            notificationsEnabled = preferences[Keys.NOTIFICATIONS_ENABLED] ?: true
+            notificationsEnabled = preferences[Keys.NOTIFICATIONS_ENABLED] ?: true,
+            darkMode = preferences[Keys.DARK_MODE] ?: "system"
         )
     }
     
@@ -60,6 +62,12 @@ class UserPreferencesRepositoryImpl @Inject constructor(
             preferences[Keys.NOTIFICATIONS_ENABLED] = enabled
         }
     }
+    
+    override suspend fun updateDarkMode(mode: String) {
+        dataStore.edit { preferences ->
+            preferences[Keys.DARK_MODE] = mode
+        }
+    }
 }
 
 interface UserPreferencesRepository {
@@ -68,4 +76,5 @@ interface UserPreferencesRepository {
     suspend fun updateLastCity(city: String)
     suspend fun updateThermalProfile(profile: ThermalProfile)
     suspend fun updateNotificationsEnabled(enabled: Boolean)
+    suspend fun updateDarkMode(mode: String)
 }

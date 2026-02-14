@@ -4,17 +4,25 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.DarkMode
+import androidx.compose.material.icons.rounded.Info
+import androidx.compose.material.icons.rounded.LightMode
+import androidx.compose.material.icons.rounded.Notifications
+import androidx.compose.material.icons.rounded.PhoneAndroid
+import androidx.compose.material.icons.rounded.Star
+import androidx.compose.material.icons.rounded.Thermostat
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.outfitly.domain.model.ThermalProfile
 import com.example.outfitly.ui.components.ThermalProfileSelector
-import com.example.outfitly.ui.theme.*
+import com.example.outfitly.ui.theme.LocalAppColors
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -22,22 +30,24 @@ fun SettingsScreen(
     viewModel: SettingsViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val colors = LocalAppColors.current
     
     Scaffold(
         topBar = {
             TopAppBar(
                 title = {
                     Text(
-                        text = "⚙️ Ayarlar",
-                        fontWeight = FontWeight.Bold
+                        text = "Ayarlar",
+                        fontWeight = FontWeight.Bold,
+                        color = colors.onBackground
                     )
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Background
+                    containerColor = MaterialTheme.colorScheme.background
                 )
             )
         },
-        containerColor = Background
+        containerColor = MaterialTheme.colorScheme.background
     ) { paddingValues ->
         Column(
             modifier = Modifier
@@ -53,18 +63,21 @@ fun SettingsScreen(
                 onProfileSelected = { viewModel.updateThermalProfile(it) }
             )
             
+            // Tema Seçimi
+            ThemeSelector(
+                currentMode = uiState.darkMode,
+                onModeSelected = { viewModel.updateDarkMode(it) }
+            )
+            
             // Bildirimler
             SettingsCard(
-                title = "🔔 Bildirimler",
+                icon = Icons.Rounded.Notifications,
+                title = "Bildirimler",
                 subtitle = "Günlük hava durumu hatırlatmaları"
             ) {
                 Switch(
                     checked = uiState.notificationsEnabled,
-                    onCheckedChange = { viewModel.updateNotifications(it) },
-                    colors = SwitchDefaults.colors(
-                        checkedThumbColor = Primary,
-                        checkedTrackColor = Primary.copy(alpha = 0.5f)
-                    )
+                    onCheckedChange = { viewModel.updateNotifications(it) }
                 )
             }
             
@@ -73,7 +86,7 @@ fun SettingsScreen(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(16.dp),
                 colors = CardDefaults.cardColors(
-                    containerColor = Primary.copy(alpha = 0.1f)
+                    containerColor = MaterialTheme.colorScheme.primaryContainer
                 )
             ) {
                 Row(
@@ -83,25 +96,33 @@ fun SettingsScreen(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Column {
-                        Text(
-                            text = "⭐ Premium",
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Bold,
-                            color = Primary
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        Icon(
+                            Icons.Rounded.Star,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.size(24.dp)
                         )
-                        Text(
-                            text = if (uiState.isPremium) "Aktif" else "Reklamsız deneyim için",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = OnSurface.copy(alpha = 0.7f)
-                        )
+                        Column {
+                            Text(
+                                text = "Premium",
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.primary
+                            )
+                            Text(
+                                text = if (uiState.isPremium) "Aktif" else "Reklamsız deneyim için",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = colors.subtext
+                            )
+                        }
                     }
                     if (!uiState.isPremium) {
                         Button(
-                            onClick = { /* TODO: Premium satın alma */ },
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = Primary
-                            )
+                            onClick = { /* TODO: Premium satın alma */ }
                         ) {
                             Text("Yükselt")
                         }
@@ -113,19 +134,30 @@ fun SettingsScreen(
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(16.dp),
-                colors = CardDefaults.cardColors(containerColor = CardBackground)
+                colors = CardDefaults.cardColors(containerColor = colors.card)
             ) {
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(16.dp)
                 ) {
-                    Text(
-                        text = "ℹ️ Hakkında",
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold,
-                        color = OnBackground
-                    )
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Icon(
+                            Icons.Rounded.Info,
+                            contentDescription = null,
+                            tint = colors.onBackground,
+                            modifier = Modifier.size(20.dp)
+                        )
+                        Text(
+                            text = "Hakkında",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = colors.onBackground
+                        )
+                    }
                     Spacer(modifier = Modifier.height(12.dp))
                     
                     AboutItem(label = "Uygulama", value = "Bugün Ne Giysem?")
@@ -137,7 +169,7 @@ fun SettingsScreen(
                     Text(
                         text = "Hava durumuna göre akıllı kombin önerileri sunan modern bir uygulama.",
                         style = MaterialTheme.typography.bodySmall,
-                        color = OnSurface.copy(alpha = 0.7f)
+                        color = colors.subtext
                     )
                 }
             }
@@ -148,15 +180,132 @@ fun SettingsScreen(
 }
 
 @Composable
+private fun ThemeSelector(
+    currentMode: String,
+    onModeSelected: (String) -> Unit
+) {
+    val colors = LocalAppColors.current
+    
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(containerColor = colors.card)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp)
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Icon(
+                    if (colors.isDark) Icons.Rounded.DarkMode else Icons.Rounded.LightMode,
+                    contentDescription = null,
+                    tint = colors.onBackground,
+                    modifier = Modifier.size(20.dp)
+                )
+                Text(
+                    text = "Tema",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = colors.onBackground
+                )
+            }
+            
+            Spacer(modifier = Modifier.height(4.dp))
+            
+            Text(
+                text = "Uygulama görünümünü seçin",
+                style = MaterialTheme.typography.bodySmall,
+                color = colors.subtext
+            )
+            
+            Spacer(modifier = Modifier.height(12.dp))
+            
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                ThemeModeButton(
+                    icon = Icons.Rounded.LightMode,
+                    label = "Açık",
+                    isSelected = currentMode == "light",
+                    onClick = { onModeSelected("light") },
+                    modifier = Modifier.weight(1f)
+                )
+                ThemeModeButton(
+                    icon = Icons.Rounded.DarkMode,
+                    label = "Koyu",
+                    isSelected = currentMode == "dark",
+                    onClick = { onModeSelected("dark") },
+                    modifier = Modifier.weight(1f)
+                )
+                ThemeModeButton(
+                    icon = Icons.Rounded.PhoneAndroid,
+                    label = "Sistem",
+                    isSelected = currentMode == "system",
+                    onClick = { onModeSelected("system") },
+                    modifier = Modifier.weight(1f)
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun ThemeModeButton(
+    icon: ImageVector,
+    label: String,
+    isSelected: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Surface(
+        onClick = onClick,
+        modifier = modifier,
+        shape = RoundedCornerShape(12.dp),
+        color = if (isSelected) MaterialTheme.colorScheme.primary
+               else MaterialTheme.colorScheme.surface,
+        tonalElevation = if (isSelected) 0.dp else 1.dp
+    ) {
+        Column(
+            modifier = Modifier.padding(vertical = 12.dp, horizontal = 8.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Icon(
+                icon,
+                contentDescription = label,
+                tint = if (isSelected) MaterialTheme.colorScheme.onPrimary
+                       else MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.size(24.dp)
+            )
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(
+                text = label,
+                style = MaterialTheme.typography.labelMedium,
+                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
+                color = if (isSelected) MaterialTheme.colorScheme.onPrimary
+                       else MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+    }
+}
+
+@Composable
 private fun SettingsCard(
+    icon: ImageVector,
     title: String,
     subtitle: String,
     trailing: @Composable () -> Unit
 ) {
+    val colors = LocalAppColors.current
+    
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = CardBackground)
+        colors = CardDefaults.cardColors(containerColor = colors.card)
     ) {
         Row(
             modifier = Modifier
@@ -165,18 +314,30 @@ private fun SettingsCard(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Column {
-                Text(
-                    text = title,
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold,
-                    color = OnBackground
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                modifier = Modifier.weight(1f)
+            ) {
+                Icon(
+                    icon,
+                    contentDescription = null,
+                    tint = colors.onBackground,
+                    modifier = Modifier.size(20.dp)
                 )
-                Text(
-                    text = subtitle,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = OnSurface.copy(alpha = 0.7f)
-                )
+                Column {
+                    Text(
+                        text = title,
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = colors.onBackground
+                    )
+                    Text(
+                        text = subtitle,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = colors.subtext
+                    )
+                }
             }
             trailing()
         }
@@ -185,6 +346,8 @@ private fun SettingsCard(
 
 @Composable
 private fun AboutItem(label: String, value: String) {
+    val colors = LocalAppColors.current
+    
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -194,13 +357,13 @@ private fun AboutItem(label: String, value: String) {
         Text(
             text = label,
             style = MaterialTheme.typography.bodyMedium,
-            color = OnSurface.copy(alpha = 0.7f)
+            color = colors.subtext
         )
         Text(
             text = value,
             style = MaterialTheme.typography.bodyMedium,
             fontWeight = FontWeight.Medium,
-            color = OnSurface
+            color = colors.onSurface
         )
     }
 }

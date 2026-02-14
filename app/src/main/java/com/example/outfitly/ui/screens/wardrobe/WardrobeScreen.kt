@@ -7,20 +7,20 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.rounded.Add
+import androidx.compose.material.icons.rounded.Checkroom
+import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.outfitly.domain.model.ClothingCategory
 import com.example.outfitly.domain.model.Season
 import com.example.outfitly.domain.model.WardrobeItem
-import com.example.outfitly.ui.theme.*
+import com.example.outfitly.ui.theme.LocalAppColors
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -28,41 +28,48 @@ fun WardrobeScreen(
     viewModel: WardrobeViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val colors = LocalAppColors.current
+    var showAddDialog by remember { mutableStateOf(false) }
     
     Scaffold(
         topBar = {
             TopAppBar(
                 title = {
                     Text(
-                        text = "👔 Gardırop",
-                        fontWeight = FontWeight.Bold
+                        text = "Gardırop",
+                        fontWeight = FontWeight.Bold,
+                        color = colors.onBackground
                     )
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Background
+                    containerColor = MaterialTheme.colorScheme.background
                 )
             )
         },
         floatingActionButton = {
-            FloatingActionButton(
-                onClick = { viewModel.showAddDialog() },
-                containerColor = Primary
+            ExtendedFloatingActionButton(
+                onClick = { showAddDialog = true },
+                containerColor = MaterialTheme.colorScheme.primary,
+                contentColor = MaterialTheme.colorScheme.onPrimary
             ) {
                 Icon(
-                    Icons.Default.Add,
-                    contentDescription = "Ekle",
-                    tint = OnPrimary
+                    Icons.Rounded.Add,
+                    contentDescription = "Ekle"
                 )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text("Parça Ekle")
             }
         },
-        containerColor = Background
+        containerColor = MaterialTheme.colorScheme.background
     ) { paddingValues ->
         if (uiState.isLoading) {
             Box(
-                modifier = Modifier.fillMaxSize(),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues),
                 contentAlignment = Alignment.Center
             ) {
-                CircularProgressIndicator(color = Primary)
+                CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
             }
         } else {
             Column(
@@ -84,10 +91,13 @@ fun WardrobeScreen(
                 }
                 
                 if (displayItems.isEmpty()) {
-                    EmptyWardrobeMessage()
+                    EmptyWardrobeMessage(onAddClick = { showAddDialog = true })
                 } else {
                     LazyColumn(
-                        contentPadding = PaddingValues(16.dp),
+                        contentPadding = PaddingValues(
+                            start = 16.dp, end = 16.dp,
+                            top = 8.dp, bottom = 88.dp
+                        ),
                         verticalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
                         items(displayItems, key = { it.id }) { item ->
@@ -103,12 +113,12 @@ fun WardrobeScreen(
     }
     
     // Ekleme dialog
-    if (uiState.showAddDialog) {
+    if (showAddDialog) {
         AddItemDialog(
-            onDismiss = { viewModel.hideAddDialog() },
+            onDismiss = { showAddDialog = false },
             onAdd = { name, category, season, color ->
                 viewModel.addItem(name, category, season, color)
-                viewModel.hideAddDialog()
+                showAddDialog = false
             }
         )
     }
@@ -128,16 +138,14 @@ private fun CategoryFilter(
             FilterChip(
                 selected = selectedCategory == null,
                 onClick = { onCategorySelected(null) },
-                label = { Text("Tümü") },
-                leadingIcon = { Text("📦", fontSize = 16.sp) }
+                label = { Text("Tümü") }
             )
         }
         items(ClothingCategory.entries.toList()) { category ->
             FilterChip(
                 selected = selectedCategory == category,
                 onClick = { onCategorySelected(category) },
-                label = { Text(category.displayName) },
-                leadingIcon = { Text(category.emoji, fontSize = 16.sp) }
+                label = { Text(category.displayName) }
             )
         }
     }
@@ -148,10 +156,12 @@ private fun WardrobeItemCard(
     item: WardrobeItem,
     onDelete: () -> Unit
 ) {
+    val colors = LocalAppColors.current
+    
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = CardBackground),
+        colors = CardDefaults.cardColors(containerColor = colors.card),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Row(
@@ -163,41 +173,53 @@ private fun WardrobeItemCard(
         ) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                modifier = Modifier.weight(1f)
             ) {
-                Text(
-                    text = item.category.emoji,
-                    fontSize = 32.sp
-                )
+                Surface(
+                    shape = RoundedCornerShape(12.dp),
+                    color = MaterialTheme.colorScheme.primaryContainer,
+                    modifier = Modifier.size(48.dp)
+                ) {
+                    Box(contentAlignment = Alignment.Center) {
+                        Icon(
+                            Icons.Rounded.Checkroom,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.size(24.dp)
+                        )
+                    }
+                }
                 Column {
                     Text(
                         text = item.name,
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.SemiBold,
-                        color = OnBackground
+                        color = colors.onBackground
                     )
+                    Spacer(modifier = Modifier.height(4.dp))
                     Row(
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         Surface(
                             shape = RoundedCornerShape(6.dp),
-                            color = Primary.copy(alpha = 0.1f)
+                            color = MaterialTheme.colorScheme.primaryContainer
                         ) {
                             Text(
                                 text = item.category.displayName,
                                 style = MaterialTheme.typography.labelSmall,
-                                color = Primary,
+                                color = MaterialTheme.colorScheme.primary,
                                 modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp)
                             )
                         }
                         Surface(
                             shape = RoundedCornerShape(6.dp),
-                            color = Secondary.copy(alpha = 0.1f)
+                            color = MaterialTheme.colorScheme.secondaryContainer
                         ) {
                             Text(
                                 text = item.season.displayName,
                                 style = MaterialTheme.typography.labelSmall,
-                                color = Secondary,
+                                color = MaterialTheme.colorScheme.secondary,
                                 modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp)
                             )
                         }
@@ -207,9 +229,9 @@ private fun WardrobeItemCard(
             
             IconButton(onClick = onDelete) {
                 Icon(
-                    Icons.Default.Delete,
+                    Icons.Rounded.Delete,
                     contentDescription = "Sil",
-                    tint = Error
+                    tint = MaterialTheme.colorScheme.error
                 )
             }
         }
@@ -217,31 +239,47 @@ private fun WardrobeItemCard(
 }
 
 @Composable
-private fun EmptyWardrobeMessage() {
+private fun EmptyWardrobeMessage(onAddClick: () -> Unit) {
+    val colors = LocalAppColors.current
+    
     Box(
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
     ) {
         Column(
-            horizontalAlignment = Alignment.CenterHorizontally
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier.padding(32.dp)
         ) {
-            Text(
-                text = "👕",
-                fontSize = 64.sp
+            Icon(
+                Icons.Rounded.Checkroom,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f),
+                modifier = Modifier.size(80.dp)
             )
             Spacer(modifier = Modifier.height(16.dp))
             Text(
-                text = "Gardırobunuz boş",
+                text = "Gardırobunuz Boş",
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold,
-                color = OnBackground
+                color = colors.onBackground
             )
             Spacer(modifier = Modifier.height(8.dp))
             Text(
-                text = "Kıyafet eklemek için + butonuna tıklayın",
+                text = "Kıyafetlerinizi ekleyerek kişiselleştirilmiş kombin önerileri alın",
                 style = MaterialTheme.typography.bodyMedium,
-                color = OnSurface.copy(alpha = 0.7f)
+                color = colors.subtext,
+                textAlign = androidx.compose.ui.text.style.TextAlign.Center
             )
+            Spacer(modifier = Modifier.height(20.dp))
+            Button(onClick = onAddClick) {
+                Icon(
+                    Icons.Rounded.Add,
+                    contentDescription = null,
+                    modifier = Modifier.size(18.dp)
+                )
+                Spacer(modifier = Modifier.width(6.dp))
+                Text("İlk Parçanı Ekle")
+            }
         }
     }
 }
@@ -260,6 +298,14 @@ private fun AddItemDialog(
     
     AlertDialog(
         onDismissRequest = onDismiss,
+        icon = {
+            Icon(
+                Icons.Rounded.Checkroom,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.size(32.dp)
+            )
+        },
         title = { Text("Yeni Parça Ekle") },
         text = {
             Column(
@@ -279,7 +325,7 @@ private fun AddItemDialog(
                     onExpandedChange = { expandedCategory = it }
                 ) {
                     OutlinedTextField(
-                        value = "${selectedCategory.emoji} ${selectedCategory.displayName}",
+                        value = selectedCategory.displayName,
                         onValueChange = {},
                         readOnly = true,
                         label = { Text("Kategori") },
@@ -294,7 +340,7 @@ private fun AddItemDialog(
                     ) {
                         ClothingCategory.entries.forEach { category ->
                             DropdownMenuItem(
-                                text = { Text("${category.emoji} ${category.displayName}") },
+                                text = { Text(category.displayName) },
                                 onClick = {
                                     selectedCategory = category
                                     expandedCategory = false
