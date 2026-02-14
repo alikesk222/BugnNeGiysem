@@ -114,6 +114,7 @@ fun WardrobeScreen(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun CategoryFilter(
     selectedCategory: ClothingCategory?,
@@ -245,6 +246,7 @@ private fun EmptyWardrobeMessage() {
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun AddItemDialog(
     onDismiss: () -> Unit,
