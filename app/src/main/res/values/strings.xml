@@ -1,3 +1,110 @@
 <resources>
-    <string name="app_name">Outfitly</string>
+    <string name="app_name">Bugün Ne Giysem?</string>
+    
+    <!-- Ana Ekran -->
+    <string name="home_title">Bugün Ne Giysem?</string>
+    <string name="todays_recommendation">Bugünün Önerisi</string>
+    <string name="items">Parçalar</string>
+    <string name="tips_title">💡 İpuçları</string>
+    <string name="refresh">Yenile</string>
+    <string name="offline_mode">📡 Çevrimdışı Mod</string>
+    
+    <!-- Hava Durumu -->
+    <string name="feels_like">Hissedilen %1$d°</string>
+    <string name="humidity">Nem</string>
+    <string name="wind">Rüzgar</string>
+    <string name="get_weather_info">Hava Durumunu Al</string>
+    <string name="weather_description">Konum izni ver veya şehrini gir ve kombin önerisi al</string>
+    <string name="enter_city">Şehir Gir</string>
+    <string name="use_location">Konum Kullan</string>
+    <string name="city_name">Şehir adı</string>
+    <string name="get_weather">Hava Durumunu Al</string>
+    <string name="cancel">İptal</string>
+    <string name="dismiss">Kapat</string>
+    
+    <!-- Hava Durumu Koşulları -->
+    <string name="condition_clear">Açık</string>
+    <string name="condition_cloudy">Bulutlu</string>
+    <string name="condition_rain">Yağmurlu</string>
+    <string name="condition_snow">Karlı</string>
+    <string name="condition_thunderstorm">Fırtınalı</string>
+    <string name="condition_mist">Sisli</string>
+    <string name="condition_unknown">Bilinmiyor</string>
+    
+    <!-- Cinsiyet -->
+    <string name="gender_male">Erkek</string>
+    <string name="gender_female">Kadın</string>
+    <string name="gender_all">Tümü</string>
+    
+    <!-- Kombin Özellikleri -->
+    <string name="rain_ready">🌧️ Yağmura Hazır</string>
+    <string name="wind_proof">💨 Rüzgara Karşı</string>
+    
+    <!-- Saatlik Tahmin -->
+    <string name="hourly_forecast">Saatlik Tahmin</string>
+    <string name="morning">Sabah</string>
+    <string name="noon">Öğlen</string>
+    <string name="evening">Akşam</string>
+    <string name="night">Gece</string>
+    
+    <!-- Termal Profil -->
+    <string name="thermal_profile">Termal Profil</string>
+    <string name="thermal_cold">Çabuk Üşürüm</string>
+    <string name="thermal_normal">Normal</string>
+    <string name="thermal_hot">Çabuk Terlerim</string>
+    
+    <!-- Gardırop -->
+    <string name="wardrobe">Gardırop</string>
+    <string name="add_item">Parça Ekle</string>
+    <string name="tops">Üstler</string>
+    <string name="bottoms">Altlar</string>
+    <string name="shoes">Ayakkabılar</string>
+    <string name="outerwear">Dış Giyim</string>
+    <string name="accessories">Aksesuarlar</string>
+    <string name="from_your_wardrobe">Dolabından Kombin</string>
+    <string name="item_name">Parça adı</string>
+    <string name="select_category">Kategori seç</string>
+    <string name="select_season">Mevsim seç</string>
+    <string name="save">Kaydet</string>
+    <string name="delete">Sil</string>
+    
+    <!-- Mevsimler -->
+    <string name="season_spring">İlkbahar</string>
+    <string name="season_summer">Yaz</string>
+    <string name="season_fall">Sonbahar</string>
+    <string name="season_winter">Kış</string>
+    <string name="season_all">Tüm Mevsimler</string>
+    
+    <!-- Riskli Gün Uyarıları -->
+    <string name="risk_alert">⚠️ Uyarı</string>
+    <string name="risk_temperature_drop">Ani sıcaklık düşüşü bekleniyor</string>
+    <string name="risk_high_wind">Yüksek rüzgar bekleniyor</string>
+    <string name="risk_rain_chance">Yağmur ihtimali yüksek</string>
+    <string name="layer_recommended">Kat kat giyinmeyi düşün</string>
+    <string name="umbrella_recommended">Şemsiye almayı unutma</string>
+    
+    <!-- İpuçları -->
+    <string name="tip_freezing">Çok soğuk! Sıkı giyinin.</string>
+    <string name="tip_gloves">Eldiven ve bere almayı unutmayın.</string>
+    <string name="tip_warm_coat">Bugün kalın bir mont şart.</string>
+    <string name="tip_hot">Bol su için, sıcak!</string>
+    <string name="tip_light_colors">Açık renkler sizi daha serin tutar.</string>
+    <string name="tip_extra_layer">Hava göründüğünden soğuk - fazladan bir kat ekleyin.</string>
+    <string name="tip_rain">Su geçirmez ayakkabı ve şemsiye alın!</string>
+    <string name="tip_wind">Rüzgar var - rüzgarlık düşünün.</string>
+    
+    <!-- Navigasyon -->
+    <string name="nav_home">Ana Sayfa</string>
+    <string name="nav_wardrobe">Gardırop</string>
+    <string name="nav_settings">Ayarlar</string>
+    
+    <!-- Ayarlar -->
+    <string name="settings">Ayarlar</string>
+    <string name="settings_thermal">Termal Profil</string>
+    <string name="settings_notifications">Bildirimler</string>
+    <string name="settings_language">Dil</string>
+    <string name="settings_about">Hakkında</string>
+    
+    <!-- Widget -->
+    <string name="widget_description">Günlük hava durumu ve kombin önerisi</string>
 </resources>

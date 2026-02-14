@@ -1,56 +1,73 @@
 package com.example.outfitly.domain.engine
 
 import com.example.outfitly.domain.model.Outfit
+import com.example.outfitly.domain.model.ThermalProfile
 import com.example.outfitly.domain.model.Weather
 import com.example.outfitly.utils.Constants
 import javax.inject.Inject
 
 class OutfitRuleEngine @Inject constructor() {
     
-    fun selectBestOutfit(outfits: List<Outfit>, weather: Weather): Outfit? {
+    fun selectBestOutfit(
+        outfits: List<Outfit>, 
+        weather: Weather,
+        thermalProfile: ThermalProfile = ThermalProfile.NORMAL
+    ): Outfit? {
         if (outfits.isEmpty()) return null
         
+        val adjustedWeather = weather.copy(
+            temperature = weather.temperature + thermalProfile.offset
+        )
+        
         val scoredOutfits = outfits.map { outfit ->
-            outfit to calculateScore(outfit, weather)
+            outfit to calculateScore(outfit, adjustedWeather)
         }.sortedByDescending { it.second }
         
         return scoredOutfits.firstOrNull()?.first
     }
     
-    fun getRecommendationTips(weather: Weather): List<String> {
+    fun getRecommendationTips(
+        weather: Weather,
+        thermalProfile: ThermalProfile = ThermalProfile.NORMAL
+    ): List<String> {
         val tips = mutableListOf<String>()
+        val adjustedTemp = weather.temperature + thermalProfile.offset
         
-        // Temperature-based tips
+        // Sıcaklık bazlı ipuçları
         when {
-            weather.temperature < 0 -> {
-                tips.add("Layer up! It's freezing outside.")
-                tips.add("Don't forget your gloves and beanie.")
+            adjustedTemp < 0 -> {
+                tips.add("Çok soğuk! Sıkı giyinin.")
+                tips.add("Eldiven ve bere almayı unutmayın.")
             }
-            weather.temperature < 10 -> {
-                tips.add("A warm coat is essential today.")
+            adjustedTemp < 10 -> {
+                tips.add("Bugün kalın bir mont şart.")
             }
-            weather.temperature > 30 -> {
-                tips.add("Stay hydrated in this heat!")
-                tips.add("Light colors will keep you cooler.")
+            adjustedTemp > 30 -> {
+                tips.add("Bol su için, sıcak!")
+                tips.add("Açık renkler sizi daha serin tutar.")
             }
         }
         
-        // Feels like vs actual temperature
+        // Hissedilen vs gerçek sıcaklık
         if (weather.feelsLike < weather.temperature - 3) {
-            tips.add("It feels colder than it looks - add an extra layer.")
+            tips.add("Hava göründüğünden soğuk - fazladan bir kat ekleyin.")
         }
         
-        // Rain tips
+        // Yağmur ipuçları
         if (weather.isRaining) {
-            tips.add("Grab waterproof shoes and an umbrella!")
+            tips.add("Su geçirmez ayakkabı ve şemsiye alın!")
         }
         
-        // Wind tips
+        // Rüzgar ipuçları
         if (weather.windSpeed > Constants.WIND_THRESHOLD_KMH) {
-            tips.add("It's windy - consider a windbreaker.")
+            tips.add("Rüzgar var - rüzgarlık düşünün.")
         }
         
         return tips
+    }
+    
+    fun getAdjustedTemperature(temp: Double, thermalProfile: ThermalProfile): Double {
+        return temp + thermalProfile.offset
     }
     
     private fun calculateScore(outfit: Outfit, weather: Weather): Int {

@@ -19,6 +19,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.outfitly.ui.components.GenderSelector
 import com.example.outfitly.ui.components.OutfitCard
+import com.example.outfitly.ui.components.RiskAlertCard
 import com.example.outfitly.ui.components.WeatherCard
 import com.example.outfitly.ui.theme.*
 
@@ -57,13 +58,13 @@ fun HomeScreen(
             TopAppBar(
                 title = {
                     Text(
-                        text = "Outfitly",
+                        text = "Bugün Ne Giysem?",
                         fontWeight = FontWeight.Bold
                     )
                 },
                 actions = {
                     IconButton(onClick = { viewModel.refresh() }) {
-                        Icon(Icons.Default.Refresh, contentDescription = "Refresh")
+                        Icon(Icons.Default.Refresh, contentDescription = "Yenile")
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -99,7 +100,7 @@ fun HomeScreen(
                             modifier = Modifier.fillMaxWidth()
                         ) {
                             Text(
-                                text = "📡 Offline Mode",
+                                text = "📡 Çevrimdışı Mod",
                                 style = MaterialTheme.typography.labelMedium,
                                 color = Error,
                                 modifier = Modifier.padding(12.dp),
@@ -123,6 +124,11 @@ fun HomeScreen(
                                 )
                             }
                         )
+                    }
+                    
+                    // Risk Alerts
+                    if (uiState.riskAlerts.isNotEmpty()) {
+                        RiskAlertCard(alerts = uiState.riskAlerts)
                     }
                     
                     // Gender Selector
@@ -153,7 +159,7 @@ fun HomeScreen(
                         .padding(16.dp),
                     action = {
                         TextButton(onClick = { viewModel.clearError() }) {
-                            Text("Dismiss")
+                            Text("Kapat")
                         }
                     }
                 ) {
@@ -197,13 +203,13 @@ private fun NoWeatherCard(
             )
             Spacer(modifier = Modifier.height(12.dp))
             Text(
-                text = "Get Weather Info",
+                text = "Hava Durumunu Al",
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold
             )
             Spacer(modifier = Modifier.height(8.dp))
             Text(
-                text = "Allow location access or enter your city to get outfit recommendations",
+                text = "Konum izni ver veya şehrini gir ve kombin önerisi al",
                 style = MaterialTheme.typography.bodyMedium,
                 color = OnSurface,
                 textAlign = TextAlign.Center
@@ -213,10 +219,10 @@ private fun NoWeatherCard(
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 OutlinedButton(onClick = onEnterCity) {
-                    Text("Enter City")
+                    Text("Şehir Gir")
                 }
                 Button(onClick = onRetryLocation) {
-                    Text("Use Location")
+                    Text("Konum Kullan")
                 }
             }
         }
@@ -234,7 +240,7 @@ private fun TipsSection(tips: List<String>) {
             modifier = Modifier.padding(16.dp)
         ) {
             Text(
-                text = "💡 Tips",
+                text = "💡 İpuçları",
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.SemiBold,
                 color = Secondary
@@ -261,12 +267,12 @@ private fun CityInputDialog(
     
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Enter City") },
+        title = { Text("Şehir Gir") },
         text = {
             OutlinedTextField(
                 value = cityText,
                 onValueChange = { cityText = it },
-                label = { Text("City name") },
+                label = { Text("Şehir adı") },
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth()
             )
@@ -276,12 +282,12 @@ private fun CityInputDialog(
                 onClick = { onCityEntered(cityText) },
                 enabled = cityText.isNotBlank()
             ) {
-                Text("Get Weather")
+                Text("Hava Durumunu Al")
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("Cancel")
+                Text("İptal")
             }
         }
     )

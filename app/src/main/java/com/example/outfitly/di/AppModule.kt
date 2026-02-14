@@ -7,6 +7,7 @@ import androidx.datastore.preferences.preferencesDataStore
 import androidx.room.Room
 import com.example.outfitly.data.local.OutfitDatabase
 import com.example.outfitly.data.local.dao.OutfitDao
+import com.example.outfitly.data.local.dao.WardrobeDao
 import com.example.outfitly.data.remote.api.WeatherApi
 import com.example.outfitly.data.repository.*
 import com.example.outfitly.utils.Constants
@@ -57,13 +58,21 @@ object AppModule {
             context,
             OutfitDatabase::class.java,
             Constants.DATABASE_NAME
-        ).build()
+        )
+            .fallbackToDestructiveMigration()
+            .build()
     }
     
     @Provides
     @Singleton
     fun provideOutfitDao(database: OutfitDatabase): OutfitDao {
         return database.outfitDao()
+    }
+    
+    @Provides
+    @Singleton
+    fun provideWardrobeDao(database: OutfitDatabase): WardrobeDao {
+        return database.wardrobeDao()
     }
     
     @Provides
@@ -94,5 +103,11 @@ object AppModule {
     @Singleton
     fun provideUserPreferencesRepository(dataStore: DataStore<Preferences>): UserPreferencesRepository {
         return UserPreferencesRepositoryImpl(dataStore)
+    }
+    
+    @Provides
+    @Singleton
+    fun provideWardrobeRepository(wardrobeDao: WardrobeDao): WardrobeRepository {
+        return WardrobeRepositoryImpl(wardrobeDao)
     }
 }

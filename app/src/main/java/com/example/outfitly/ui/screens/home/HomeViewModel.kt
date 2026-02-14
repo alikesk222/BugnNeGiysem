@@ -7,9 +7,9 @@ import com.example.outfitly.data.local.SeedData
 import com.example.outfitly.data.repository.OutfitRepository
 import com.example.outfitly.data.repository.UserPreferencesRepository
 import com.example.outfitly.data.repository.WeatherRepository
-import com.example.outfitly.domain.model.Gender
-import com.example.outfitly.domain.model.Outfit
-import com.example.outfitly.domain.model.Weather
+import com.example.outfitly.domain.engine.OutfitRuleEngine
+import com.example.outfitly.domain.engine.RiskAlertEngine
+import com.example.outfitly.domain.model.*
 import com.example.outfitly.domain.usecase.GetOutfitRecommendationUseCase
 import com.example.outfitly.utils.Resource
 import com.google.android.gms.location.FusedLocationProviderClient
@@ -24,6 +24,8 @@ class HomeViewModel @Inject constructor(
     private val outfitRepository: OutfitRepository,
     private val userPreferencesRepository: UserPreferencesRepository,
     private val getOutfitRecommendationUseCase: GetOutfitRecommendationUseCase,
+    private val ruleEngine: OutfitRuleEngine,
+    private val riskAlertEngine: RiskAlertEngine,
     private val fusedLocationClient: FusedLocationProviderClient
 ) : ViewModel() {
     
@@ -47,14 +49,25 @@ class HomeViewModel @Inject constructor(
     private fun observeUserPreferences() {
         viewModelScope.launch {
             userPreferencesRepository.userPreferences.collect { prefs ->
-                _uiState.update { it.copy(selectedGender = prefs.gender) }
+                _uiState.update { 
+                    it.copy(
+                        selectedGender = prefs.gender,
+                        thermalProfile = prefs.thermalProfile
+                    ) 
+                }
                 
                 // Re-fetch outfit if weather is available
                 _uiState.value.weather?.let { weather ->
-                    fetchOutfitRecommendation(weather, prefs.gender)
+                    fetchOutfitRecommendation(weather, prefs.gender, prefs.thermalProfile)
+                    analyzeRisks(weather)
                 }
             }
         }
+    }
+    
+    private fun analyzeRisks(weather: Weather) {
+        val alerts = riskAlertEngine.analyzeRisks(weather, null)
+        _uiState.update { it.copy(riskAlerts = alerts) }
     }
     
     @SuppressLint("MissingPermission")
@@ -103,7 +116,12 @@ class HomeViewModel @Inject constructor(
             is Resource.Success -> {
                 result.data?.let { weather ->
                     _uiState.update { it.copy(weather = weather, isLoading = false, isOffline = false) }
-                    fetchOutfitRecommendation(weather, _uiState.value.selectedGender)
+                    fetchOutfitRecommendation(
+                        weather, 
+                        _uiState.value.selectedGender,
+                        _uiState.value.thermalProfile
+                    )
+                    analyzeRisks(weather)
                     
                     viewModelScope.launch {
                         userPreferencesRepository.updateLastCity(weather.cityName)
@@ -122,14 +140,19 @@ class HomeViewModel @Inject constructor(
         }
     }
     
-    private fun fetchOutfitRecommendation(weather: Weather, gender: Gender) {
+    private fun fetchOutfitRecommendation(
+        weather: Weather, 
+        gender: Gender,
+        thermalProfile: ThermalProfile
+    ) {
         viewModelScope.launch {
             getOutfitRecommendationUseCase(weather, gender).collect { recommendation ->
+                val tips = ruleEngine.getRecommendationTips(weather, thermalProfile)
                 _uiState.update { 
                     it.copy(
                         recommendedOutfit = recommendation.outfit,
                         alternativeOutfits = recommendation.alternativeOutfits,
-                        tips = recommendation.tips
+                        tips = tips
                     ) 
                 }
             }
@@ -158,7 +181,9 @@ data class HomeUiState(
     val recommendedOutfit: Outfit? = null,
     val alternativeOutfits: List<Outfit> = emptyList(),
     val tips: List<String> = emptyList(),
+    val riskAlerts: List<RiskAlert> = emptyList(),
     val selectedGender: Gender = Gender.UNISEX,
+    val thermalProfile: ThermalProfile = ThermalProfile.NORMAL,
     val isLoading: Boolean = false,
     val isOffline: Boolean = false,
     val error: String? = null

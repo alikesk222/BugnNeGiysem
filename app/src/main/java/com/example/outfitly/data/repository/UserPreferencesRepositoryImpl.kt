@@ -6,6 +6,7 @@ import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import com.example.outfitly.domain.model.Gender
+import com.example.outfitly.domain.model.ThermalProfile
 import com.example.outfitly.domain.model.UserPreferences
 import com.example.outfitly.utils.Constants.PreferencesKeys
 import kotlinx.coroutines.flow.Flow
@@ -20,13 +21,19 @@ class UserPreferencesRepositoryImpl @Inject constructor(
         val GENDER = stringPreferencesKey(PreferencesKeys.GENDER)
         val LAST_CITY = stringPreferencesKey(PreferencesKeys.LAST_CITY)
         val IS_PREMIUM = booleanPreferencesKey(PreferencesKeys.IS_PREMIUM)
+        val THERMAL_PROFILE = stringPreferencesKey("thermal_profile")
+        val NOTIFICATIONS_ENABLED = booleanPreferencesKey("notifications_enabled")
     }
     
     override val userPreferences: Flow<UserPreferences> = dataStore.data.map { preferences ->
         UserPreferences(
             gender = preferences[Keys.GENDER]?.let { Gender.valueOf(it) } ?: Gender.UNISEX,
             lastCity = preferences[Keys.LAST_CITY],
-            isPremium = preferences[Keys.IS_PREMIUM] ?: false
+            isPremium = preferences[Keys.IS_PREMIUM] ?: false,
+            thermalProfile = preferences[Keys.THERMAL_PROFILE]?.let { 
+                ThermalProfile.valueOf(it) 
+            } ?: ThermalProfile.NORMAL,
+            notificationsEnabled = preferences[Keys.NOTIFICATIONS_ENABLED] ?: true
         )
     }
     
@@ -41,10 +48,24 @@ class UserPreferencesRepositoryImpl @Inject constructor(
             preferences[Keys.LAST_CITY] = city
         }
     }
+    
+    override suspend fun updateThermalProfile(profile: ThermalProfile) {
+        dataStore.edit { preferences ->
+            preferences[Keys.THERMAL_PROFILE] = profile.name
+        }
+    }
+    
+    override suspend fun updateNotificationsEnabled(enabled: Boolean) {
+        dataStore.edit { preferences ->
+            preferences[Keys.NOTIFICATIONS_ENABLED] = enabled
+        }
+    }
 }
 
 interface UserPreferencesRepository {
     val userPreferences: Flow<UserPreferences>
     suspend fun updateGender(gender: Gender)
     suspend fun updateLastCity(city: String)
+    suspend fun updateThermalProfile(profile: ThermalProfile)
+    suspend fun updateNotificationsEnabled(enabled: Boolean)
 }
